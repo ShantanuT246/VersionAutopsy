@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VersionAutopsy - Dependency Risk Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🔍 VersionAutopsy</h1>
+            <p class="tagline">Dependency Risk Analyzer for Python Projects</p>
+            <p class="description">Identify potential upgrade risks using semantic versioning analysis</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Form 1: Dependency Analyzer -->
+            <section class="form-section">
+                <h2>📋 Analyze Dependencies</h2>
+                <p class="section-description">Paste your requirements.txt content to analyze all dependencies</p>
+                
+                <form id="analyzeForm">
+                    <div class="form-group">
+                        <label for="requirements">Requirements.txt Content:</label>
+                        <textarea 
+                            id="requirements" 
+                            name="requirements" 
+                            rows="8" 
+                            placeholder="flask==2.0.0&#10;requests==2.25.0&#10;numpy==1.21.0&#10;pandas==1.3.0"
+                            required
+                        ></textarea>
+                        <small class="hint">Format: package==version (one per line)</small>
+                        <div class="error-message" id="analyzeError"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">Analyze Dependencies</span>
+                        <span class="loader" id="analyzeLoader"></span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>📊 Risk Analysis Results</h2>
+                <div class="results-summary" id="resultsSummary"></div>
+                <div class="table-container">
+                    <table class="results-table" id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>Package</th>
+                                <th>Current Version</th>
+                                <th>Latest Version</th>
+                                <th>Risk Level</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Form 2: Manual Package Check -->
+            <section class="form-section">
+                <h2>🔎 Check Single Package</h2>
+                <p class="section-description">Manually check a specific package version</p>
+                
+                <form id="checkPackageForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="packageName">Package Name:</label>
+                            <input 
+                                type="text" 
+                                id="packageName" 
+                                name="packageName" 
+                                placeholder="e.g., flask"
+                                pattern="[a-zA-Z0-9\-_]+"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currentVersion">Current Version:</label>
+                            <input 
+                                type="text" 
+                                id="currentVersion" 
+                                name="currentVersion" 
+                                placeholder="e.g., 2.0.0"
+                                pattern="^\d+(\.\d+)*$"
+                                required
+                            >
+                        </div>
+                    </div>
+                    <small class="hint">Use semantic versioning format (e.g., 2.31.0)</small>
+                    <div class="error-message" id="checkPackageError"></div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">Check Package</span>
+                        <span class="loader" id="checkLoader"></span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Single Package Result -->
+            <section class="single-result" id="singleResult" style="display: none;">
+                <div class="result-card" id="resultCard"></div>
+            </section>
+
+            <!-- Form 3: Feedback Form -->
+            <section class="form-section feedback-section">
+                <h2>💬 Feedback & Support</h2>
+                <p class="section-description">Report issues or share your feedback</p>
+                
+                <form id="feedbackForm">
+                    <div class="form-group">
+                        <label for="name">Your Name:</label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            placeholder="John Doe"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address:</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="john@example.com"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message:</label>
+                        <textarea 
+                            id="message" 
+                            name="message" 
+                            rows="5" 
+                            placeholder="Share your thoughts, report bugs, or suggest features..."
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div class="error-message" id="feedbackError"></div>
+                    <div class="success-message" id="feedbackSuccess"></div>
+                    
+                    <button type="submit" class="btn btn-secondary">
+                        <span class="btn-text">Submit Feedback</span>
+                        <span class="loader" id="feedbackLoader"></span>
+                    </button>
+                </form>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with ❤️ for safer dependency management | VersionAutopsy © 2026</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

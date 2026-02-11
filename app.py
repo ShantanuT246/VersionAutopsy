@@ -99,54 +99,6 @@ def check_single_package():
         return jsonify({'error': f'Server error: {str(e)}'}), 500
 
 
-@app.route('/api/submit-feedback', methods=['POST'])
-def submit_feedback():
-    """
-    Handle feedback form submission.
-    
-    Expected JSON payload:
-    {
-        "name": "John Doe",
-        "email": "john@example.com",
-        "message": "Great tool!"
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
-        
-        # Validate required fields
-        name = data.get('name', '').strip()
-        email = data.get('email', '').strip()
-        message = data.get('message', '').strip()
-        
-        if not name:
-            return jsonify({'error': 'Name is required'}), 400
-        
-        if not email:
-            return jsonify({'error': 'Email is required'}), 400
-        
-        # Basic email validation
-        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
-            return jsonify({'error': 'Invalid email format'}), 400
-        
-        if not message:
-            return jsonify({'error': 'Message is required'}), 400
-        
-        # In a real application, you would save this to a database
-        # For now, just log it
-        print(f"Feedback received from {name} ({email}): {message}")
-        
-        return jsonify({
-            'success': True,
-            'message': 'Thank you for your feedback! We appreciate your input.'
-        })
-    
-    except Exception as e:
-        return jsonify({'error': f'Server error: {str(e)}'}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

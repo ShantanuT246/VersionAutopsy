@@ -4,105 +4,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VersionAutopsy - Dependency Risk Analyzer</title>
+    <title>VersionAutopsy — Dependency Risk Analyzer</title>
+    <meta name="description"
+        content="Identify Python dependency upgrade risks using semantic versioning analysis. Paste your requirements.txt and get instant risk reports.">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>🔍 VersionAutopsy</h1>
-            <p class="tagline">Dependency Risk Analyzer for Python Projects</p>
-            <p class="description">Identify potential upgrade risks using semantic versioning analysis</p>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🔍</div>
+            <h2>VersionAutopsy</h2>
+            <span>Dependency Risk Analyzer</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Tools</div>
+            <button class="nav-link active" onclick="scrollToSection('analyzeSection')">
+                <span class="nav-icon">📋</span> Analyze Dependencies
+            </button>
+            <button class="nav-link" onclick="scrollToSection('checkSection')">
+                <span class="nav-icon">🔎</span> Check Single Package
+            </button>
+
+            <div class="nav-label">Results</div>
+            <button class="nav-link" onclick="scrollToSection('resultsSection')" id="navResults">
+                <span class="nav-icon">📊</span> Risk Report
+                <span class="nav-badge" id="navBadge" style="display:none">0</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-version">v1.0.0 · PyPI API</div>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN WRAPPER ===== -->
+    <div class="app-wrapper">
+
+        <!-- Top Header -->
+        <header class="top-header">
+            <div>
+                <div class="page-title">Dashboard</div>
+                <div class="page-subtitle">Semantic versioning risk assessment</div>
+            </div>
+            <div class="header-actions">
+                <span class="header-badge">🐍 Python</span>
+                <div class="header-dot" title="PyPI API Connected"></div>
+            </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
+        <!-- Page Content -->
+        <main class="page-content">
 
-            <!-- Form 1: Dependency Analyzer -->
-            <section class="form-section">
-                <h2>📋 Analyze Dependencies</h2>
-                <p class="section-description">Paste your requirements.txt content to analyze all dependencies</p>
-
-                <form id="analyzeForm">
-                    <div class="form-group">
-                        <label for="requirements">Requirements.txt Content:</label>
-                        <textarea id="requirements" name="requirements" rows="8"
-                            placeholder="flask==2.0.0&#10;requests==2.25.0&#10;numpy==1.21.0&#10;pandas==1.3.0"
-                            required></textarea>
-                        <small class="hint">Format: package==version (one per line)</small>
-                        <div class="error-message" id="analyzeError"></div>
+            <!-- ===== STATS ROW ===== -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-icon primary">📦</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statTotal">0</div>
+                        <div class="stat-label">Packages Analyzed</div>
                     </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon danger">⚠️</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statHigh">0</div>
+                        <div class="stat-label">High Risk</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon warning">⚡</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statMedium">0</div>
+                        <div class="stat-label">Medium Risk</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon success">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="statSafe">0</div>
+                        <div class="stat-label">Safe / Up-to-Date</div>
+                    </div>
+                </div>
+            </div>
 
-                    <button type="submit" class="btn btn-primary">
-                        <span class="btn-text">Analyze Dependencies</span>
-                        <span class="loader" id="analyzeLoader"></span>
-                    </button>
-                </form>
-            </section>
+            <!-- ===== FORM 1: Analyze Dependencies ===== -->
+            <div class="panel" id="analyzeSection">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">
+                            <div class="panel-icon">📋</div>
+                            Analyze Dependencies
+                        </div>
+                        <div class="panel-desc">Paste your requirements.txt to analyze all packages at once</div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <form id="analyzeForm">
+                        <div class="form-group">
+                            <label class="form-label" for="requirements">requirements.txt Content</label>
+                            <textarea class="form-control" id="requirements" name="requirements" rows="8"
+                                placeholder="flask==2.0.0&#10;requests==2.25.0&#10;numpy==1.21.0&#10;pandas==1.3.0"
+                                required></textarea>
+                            <div class="form-hint">💡 Format: <code>package==version</code> — one per line</div>
+                            <div class="error-message" id="analyzeError">⚠️ <span id="analyzeErrorText"></span></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="analyzeBtn">
+                            <span>Run Analysis</span>
+                            <span class="loader" id="analyzeLoader"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-            <!-- Results Section -->
-            <section class="results-section" id="resultsSection" style="display: none;">
-                <h2>📊 Risk Analysis Results</h2>
-                <div class="results-summary" id="resultsSummary"></div>
-                <div class="table-container">
-                    <table class="results-table" id="resultsTable">
+            <!-- ===== RESULTS TABLE ===== -->
+            <div class="panel results-section" id="resultsSection">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">
+                            <div class="panel-icon">📊</div>
+                            Risk Report
+                        </div>
+                        <div class="panel-desc" id="reportSubtitle">Dependency analysis results</div>
+                    </div>
+                    <button class="btn btn-outline" onclick="clearResults()"
+                        style="font-size:.8rem; padding:7px 14px;">Clear</button>
+                </div>
+
+                <div class="summary-bar" id="summaryBar"></div>
+
+                <div class="table-wrap">
+                    <table class="results-table">
                         <thead>
                             <tr>
                                 <th>Package</th>
-                                <th>Current Version</th>
-                                <th>Latest Version</th>
+                                <th>Current</th>
+                                <th>Latest</th>
                                 <th>Risk Level</th>
                                 <th>Explanation</th>
                             </tr>
                         </thead>
-                        <tbody id="resultsBody">
-                        </tbody>
+                        <tbody id="resultsBody"></tbody>
                     </table>
                 </div>
-            </section>
+            </div>
 
-            <!-- Form 2: Manual Package Check -->
-            <section class="form-section">
-                <h2>🔎 Check Single Package</h2>
-                <p class="section-description">Manually check a specific package version</p>
-
-                <form id="checkPackageForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="packageName">Package Name:</label>
-                            <input type="text" id="packageName" name="packageName" placeholder="e.g., flask"
-                                pattern="[a-zA-Z0-9\-_]+" required>
+            <!-- ===== FORM 2: Single Package ===== -->
+            <div class="panel" id="checkSection">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">
+                            <div class="panel-icon">🔎</div>
+                            Check Single Package
                         </div>
-
-                        <div class="form-group">
-                            <label for="currentVersion">Current Version:</label>
-                            <input type="text" id="currentVersion" name="currentVersion" placeholder="e.g., 2.0.0"
-                                pattern="^\d+(\.\d+)*$" required>
-                        </div>
+                        <div class="panel-desc">Manually check a specific package and version</div>
                     </div>
-                    <small class="hint">Use semantic versioning format (e.g., 2.31.0)</small>
-                    <div class="error-message" id="checkPackageError"></div>
+                </div>
+                <div class="panel-body">
+                    <form id="checkPackageForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="packageName">Package Name</label>
+                                <input class="form-control" type="text" id="packageName" name="packageName"
+                                    placeholder="e.g., flask" pattern="[a-zA-Z0-9\-_]+" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="currentVersion">Current Version</label>
+                                <input class="form-control" type="text" id="currentVersion" name="currentVersion"
+                                    placeholder="e.g., 2.0.0" pattern="^\d+(\.\d+)*$" required>
+                            </div>
+                        </div>
+                        <div class="form-hint">💡 Use semantic versioning — e.g., <code>2.31.0</code></div>
+                        <div class="error-message" id="checkPackageError" style="margin-bottom:12px;">⚠️ <span
+                                id="checkPackageErrorText"></span></div>
+                        <button type="submit" class="btn btn-primary" id="checkBtn">
+                            <span>Check Package</span>
+                            <span class="loader" id="checkLoader"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-                    <button type="submit" class="btn btn-primary">
-                        <span class="btn-text">Check Package</span>
-                        <span class="loader" id="checkLoader"></span>
-                    </button>
-                </form>
-            </section>
-
-            <!-- Single Package Result -->
-            <section class="single-result" id="singleResult" style="display: none;">
-                <div class="result-card" id="resultCard"></div>
-            </section>
+            <!-- ===== SINGLE RESULT ===== -->
+            <div class="panel single-result" id="singleResult">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">📦</div>
+                        Package Result
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="result-detail-card" id="resultCard"></div>
+                </div>
+            </div>
 
         </main>
 
         <!-- Footer -->
-        <footer class="footer">
-            <p>Built with ❤️ for safer dependency management | VersionAutopsy © 2026</p>
+        <footer class="footer-bar">
+            Built with ❤️ for safer dependency management &nbsp;·&nbsp; VersionAutopsy © 2026
         </footer>
+
     </div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>

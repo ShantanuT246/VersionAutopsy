@@ -1,5 +1,35 @@
 // VersionAutopsy — Dashboard JS
 
+// ===== Dark Mode Toggle =====
+(function () {
+    const html = document.documentElement;
+    const STORAGE_KEY = 'va-theme';
+
+    function applyTheme(dark) {
+        html.setAttribute('data-theme', dark ? 'dark' : 'light');
+        const btn = document.getElementById('themeToggle');
+        if (btn) btn.textContent = dark ? '☀️' : '🌙';
+    }
+
+    // Restore saved preference (default: light)
+    const savedDark = localStorage.getItem(STORAGE_KEY) === 'dark';
+    applyTheme(savedDark);
+
+    // Wire up toggle button after DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('themeToggle');
+        if (!btn) return;
+        // Re-apply so button emoji matches (DOMContentLoaded fires after inline scripts)
+        applyTheme(localStorage.getItem(STORAGE_KEY) === 'dark');
+        btn.addEventListener('click', () => {
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            const next = !isDark;
+            applyTheme(next);
+            localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light');
+        });
+    });
+})();
+
 // ===== Utility: Scroll to section =====
 function scrollToSection(id) {
     const el = document.getElementById(id);

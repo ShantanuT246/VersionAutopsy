@@ -32,6 +32,72 @@
     --transition: 0.22s cubic-bezier(.4, 0, .2, 1);
 }
 
+/* ===== DARK MODE VARIABLES ===== */
+[data-theme="dark"] {
+    --primary: #818cf8;
+    --primary-light: #a5b4fc;
+    --primary-dark: #6366f1;
+    --accent: #22d3ee;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --surface: #1e293b;
+    --surface-2: #0f172a;
+    --surface-3: #1a2438;
+    --sidebar-bg: #020817;
+    --sidebar-text: #64748b;
+    --sidebar-active: #818cf8;
+    --border: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, .3), 0 1px 2px rgba(0, 0, 0, .2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, .4);
+    --shadow-lg: 0 20px 40px rgba(0, 0, 0, .5);
+    --shadow-primary: 0 8px 24px rgba(129, 140, 248, .3);
+}
+
+/* Smooth transition for dark mode switch */
+body,
+.sidebar,
+.top-header,
+.stat-card,
+.panel,
+.form-control,
+.footer-bar {
+    transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+/* ===== DARK MODE TOGGLE BUTTON ===== */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+    background: rgba(99, 102, 241, .1);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, .1);
+    transform: rotate(20deg) scale(1.08);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(129, 140, 248, .15);
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, .15);
+}
+
 /* ===== Reset ===== */
 *,
 *::before,

@@ -344,6 +344,23 @@ body {
     transform: translateY(-2px);
 }
 
+/* Color-matched glow per card type */
+.stat-card:has(.stat-icon.primary):hover {
+    box-shadow: 0 8px 28px rgba(99, 102, 241, .22);
+}
+
+.stat-card:has(.stat-icon.danger):hover {
+    box-shadow: 0 8px 28px rgba(239, 68, 68, .22);
+}
+
+.stat-card:has(.stat-icon.warning):hover {
+    box-shadow: 0 8px 28px rgba(245, 158, 11, .22);
+}
+
+.stat-card:has(.stat-icon.success):hover {
+    box-shadow: 0 8px 28px rgba(16, 185, 129, .22);
+}
+
 .stat-icon {
     width: 46px;
     height: 46px;

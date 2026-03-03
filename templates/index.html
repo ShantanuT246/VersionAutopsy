@@ -15,7 +15,10 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon">🔍</div>
+            <div class="logo-icon">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="VersionAutopsy Logo"
+                    style="width:100%;height:100%;object-fit:contain;border-radius:4px;">
+            </div>
             <h2>VersionAutopsy</h2>
             <span>Dependency Risk Analyzer</span>
         </div>
@@ -52,7 +55,8 @@
             </div>
             <div class="header-actions">
                 <span class="header-badge">🐍 Python</span>
-                <button class="theme-toggle" id="themeToggle" title="Toggle dark / light mode" aria-label="Toggle dark mode">🌙</button>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark / light mode"
+                    aria-label="Toggle dark mode">🌙</button>
                 <div class="header-dot" title="PyPI API Connected"></div>
             </div>
         </header>

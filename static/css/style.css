@@ -748,6 +748,31 @@ textarea.form-control {
     background: var(--surface-2);
 }
 
+/* Risk-level row tints */
+.results-table tbody tr:has(.risk-high) {
+    background: rgba(239, 68, 68, 0.09);
+}
+
+.results-table tbody tr:has(.risk-medium) {
+    background: rgba(245, 158, 11, 0.09);
+}
+
+.results-table tbody tr:has(.risk-low) {
+    background: rgba(16, 185, 129, 0.09);
+}
+
+.results-table tbody tr:has(.risk-high):hover {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.results-table tbody tr:has(.risk-medium):hover {
+    background: rgba(245, 158, 11, 0.15);
+}
+
+.results-table tbody tr:has(.risk-low):hover {
+    background: rgba(16, 185, 129, 0.15);
+}
+
 .pkg-name {
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;

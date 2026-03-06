@@ -124,7 +124,9 @@ body {
 /* ===== SIDEBAR ===== */
 .sidebar {
     width: var(--sidebar-w);
-    background: var(--sidebar-bg);
+    background: rgba(10, 14, 29, 0.82);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -134,6 +136,7 @@ body {
     bottom: 0;
     z-index: 100;
     transition: transform var(--transition);
+    border-right: 1px solid rgba(99, 102, 241, 0.12);
 }
 
 .sidebar::after {
@@ -396,6 +399,23 @@ body {
 .stat-card:hover {
     box-shadow: var(--shadow-md);
     transform: translateY(-2px);
+}
+
+/* Neon top border per card type */
+.stat-card:has(.stat-icon.primary) {
+    border-top: 3px solid #6366f1;
+}
+
+.stat-card:has(.stat-icon.danger) {
+    border-top: 3px solid #ef4444;
+}
+
+.stat-card:has(.stat-icon.warning) {
+    border-top: 3px solid #f59e0b;
+}
+
+.stat-card:has(.stat-icon.success) {
+    border-top: 3px solid #10b981;
 }
 
 /* Color-matched glow per card type */

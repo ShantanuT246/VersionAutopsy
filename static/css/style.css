@@ -316,8 +316,29 @@ body {
 
 .top-header .page-subtitle {
     font-size: 0.8rem;
-    color: var(--text-secondary);
+    color: #e8559a;
     margin-top: 1px;
+    text-shadow: 0 0 8px rgba(232, 85, 154, 0.45), 0 0 18px rgba(219, 39, 119, 0.2);
+}
+
+/* Typewriter blinking cursor — transition: none overrides the .top-header border-color transition */
+.top-header .page-subtitle.typewriter-active {
+    border-right: 2px solid currentColor;
+    padding-right: 2px;
+    transition: none !important;
+    animation: blink-caret 0.7s step-start infinite;
+}
+
+@keyframes blink-caret {
+
+    0%,
+    100% {
+        border-right-color: var(--text-secondary);
+    }
+
+    50% {
+        border-right-color: transparent;
+    }
 }
 
 .header-actions {

@@ -27,6 +27,24 @@
             applyTheme(next);
             localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light');
         });
+
+        // ===== Typewriter effect on subtitle =====
+        const subtitle = document.querySelector('.page-subtitle');
+        if (subtitle) {
+            const fullText = subtitle.textContent.trim();
+            subtitle.textContent = '';
+            let i = 0;
+            const type = () => {
+                if (i === 0) subtitle.classList.add('typewriter-active'); // cursor appears only when typing starts
+                if (i < fullText.length) {
+                    subtitle.textContent += fullText[i++];
+                    setTimeout(type, 38);
+                } else {
+                    subtitle.classList.remove('typewriter-active');
+                }
+            };
+            setTimeout(type, 320);
+        }
     });
 })();
 

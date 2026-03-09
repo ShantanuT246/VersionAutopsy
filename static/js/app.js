@@ -105,7 +105,14 @@ function getRiskClass(level) {
     }[level] || 'risk-unknown';
 }
 function getRiskIcon(level) {
-    return { HIGH: '🔴', MEDIUM: '🟡', LOW: '🟢', 'UP-TO-DATE': '✨', UNKNOWN: '⬜' }[level] || '⬜';
+    const iconStyle = 'width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;';
+    return {
+        HIGH: `<img src="/static/high_risk.svg" alt="High" style="${iconStyle}">`,
+        MEDIUM: `<img src="/static/medium_risk.svg" alt="Medium" style="${iconStyle}">`,
+        LOW: `<img src="/static/low_risk.svg" alt="Low" style="${iconStyle}">`,
+        'UP-TO-DATE': '✨',
+        UNKNOWN: '⬜'
+    }[level] || '⬜';
 }
 
 // ===== Display results table =====
@@ -122,9 +129,9 @@ function displayResults(results, totalPackages) {
 
     summaryBar.innerHTML = `
     <span class="summary-chip chip-total">📦 ${totalPackages} Total</span>
-    <span class="summary-chip chip-danger">🔴 ${counts.HIGH} High</span>
-    <span class="summary-chip chip-warning">⚡ ${counts.MEDIUM} Medium</span>
-    <span class="summary-chip chip-success">✅ ${counts.LOW} Low</span>
+    <span class="summary-chip chip-danger"><img src="/static/high_risk.svg" alt="High" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.HIGH} High</span>
+    <span class="summary-chip chip-warning"><img src="/static/medium_risk.svg" alt="Medium" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.MEDIUM} Medium</span>
+    <span class="summary-chip chip-success"><img src="/static/low_risk.svg" alt="Low" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.LOW} Low</span>
     <span class="summary-chip chip-info">✨ ${counts['UP-TO-DATE']} Up-to-Date</span>
   `;
 

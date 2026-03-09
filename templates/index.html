@@ -74,21 +74,30 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon danger">⚠️</div>
+                    <div class="stat-icon danger">
+                        <img src="{{ url_for('static', filename='high_risk.svg') }}" alt="High Risk"
+                            style="width:100%;height:100%;object-fit:contain;border-radius:4px;">
+                    </div>
                     <div class="stat-info">
                         <div class="stat-value" id="statHigh">0</div>
                         <div class="stat-label">High Risk</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon warning">⚡</div>
+                    <div class="stat-icon warning">
+                        <img src="{{ url_for('static', filename='medium_risk.svg') }}" alt="Medium Risk"
+                            style="width:100%;height:100%;object-fit:contain;border-radius:4px;">
+                    </div>
                     <div class="stat-info">
                         <div class="stat-value" id="statMedium">0</div>
                         <div class="stat-label">Medium Risk</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon success">✅</div>
+                    <div class="stat-icon success">
+                        <img src="{{ url_for('static', filename='low_risk.svg') }}" alt="Safe"
+                            style="width:100%;height:100%;object-fit:contain;border-radius:4px;">
+                    </div>
                     <div class="stat-info">
                         <div class="stat-value" id="statSafe">0</div>
                         <div class="stat-label">Safe / Up-to-Date</div>

@@ -124,6 +124,8 @@
                                 placeholder="flask==2.0.0&#10;requests==2.25.0&#10;numpy==1.21.0&#10;pandas==1.3.0"
                                 required></textarea>
                             <div class="form-hint">💡 Format: <code>package==version</code> — one per line</div>
+                            <div class="form-hint" style="margin-top:4px;">One package per line. Calculation time will
+                                be shown after analysis.</div>
                             <div class="error-message" id="analyzeError">⚠️ <span id="analyzeErrorText"></span></div>
                         </div>
                         <button type="submit" class="btn btn-primary" id="analyzeBtn">
@@ -149,6 +151,7 @@
                 </div>
 
                 <div class="summary-bar" id="summaryBar"></div>
+                <div class="calc-time" id="calcTime"></div>
 
                 <div class="table-wrap">
                     <table class="results-table">
@@ -158,6 +161,7 @@
                                 <th>Current</th>
                                 <th>Latest</th>
                                 <th>Risk Level</th>
+                                <th>Conflict Group</th>
                                 <th>Explanation</th>
                             </tr>
                         </thead>

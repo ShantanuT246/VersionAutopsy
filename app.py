@@ -3,9 +3,10 @@ VersionAutopsy - Flask Web Application
 Main application file with API endpoints
 """
 
-from flask import Flask, render_template, request, jsonify
-from version_analyzer import parse_requirements, analyze_package
 import re
+import time
+from flask import Flask, render_template, request, jsonify
+from version_analyzer import parse_requirements, analyze_package, _CONFLICT_GROUPS
 
 app = Flask(__name__)
 
@@ -43,16 +44,23 @@ def analyze_dependencies():
         if not packages:
             return jsonify({'error': 'No valid packages found. Please check the format.'}), 400
         
-        # Analyze each package
+        # Analyze each package and measure time
+        start_time = time.perf_counter()
         results = []
         for pkg in packages:
             analysis = analyze_package(pkg['package'], pkg['version'])
+            # Attach conflict group
+            analysis['conflict_group'] = _CONFLICT_GROUPS.get(
+                pkg['package'].lower().replace('_', '-'), 'other'
+            )
             results.append(analysis)
+        elapsed = round(time.perf_counter() - start_time, 2)
         
         return jsonify({
             'success': True,
             'results': results,
-            'total_packages': len(results)
+            'total_packages': len(results),
+            'calculation_time': elapsed
         })
     
     except Exception as e:

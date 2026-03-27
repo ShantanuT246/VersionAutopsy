@@ -1017,3 +1017,32 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== CONFLICT GROUP BADGE ===== */
+.group-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    /* color and background are set inline via JS */
+}
+
+/* ===== CALCULATION TIME LINE ===== */
+.calc-time {
+    padding: 8px 28px;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    font-style: italic;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    min-height: 0;
+}
+
+.calc-time:empty {
+    display: none;
+}

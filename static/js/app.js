@@ -115,12 +115,29 @@ function getRiskIcon(level) {
     }[level] || '⬜';
 }
 
+// ===== Group badge helper =====
+const GROUP_META = {
+    web: { label: 'Web Stack', color: '#6366f1' },
+    data: { label: 'Data Science', color: '#0ea5e9' },
+    geo: { label: 'Geospatial', color: '#10b981' },
+    viz: { label: 'Visualisation', color: '#f59e0b' },
+    http: { label: 'HTTP/Network', color: '#8b5cf6' },
+    datetime: { label: 'Date / Time', color: '#ec4899' },
+    build: { label: 'Build Tools', color: '#6b7280' },
+    other: { label: 'Other', color: '#374151' },
+};
+function getGroupBadge(group) {
+    const meta = GROUP_META[group] || GROUP_META.other;
+    return `<span class="group-badge" style="background:${meta.color}20;color:${meta.color};border:1px solid ${meta.color}40">${meta.label}</span>`;
+}
+
 // ===== Display results table =====
-function displayResults(results, totalPackages) {
+function displayResults(results, totalPackages, calcTime) {
     const section = document.getElementById('resultsSection');
     const body = document.getElementById('resultsBody');
     const summaryBar = document.getElementById('summaryBar');
     const subtitle = document.getElementById('reportSubtitle');
+    const calcTimeEl = document.getElementById('calcTime');
 
     const counts = { HIGH: 0, MEDIUM: 0, LOW: 0, 'UP-TO-DATE': 0, UNKNOWN: 0 };
     results.forEach(r => { counts[r.risk_level] = (counts[r.risk_level] || 0) + 1; });
@@ -135,6 +152,13 @@ function displayResults(results, totalPackages) {
     <span class="summary-chip chip-info">✨ ${counts['UP-TO-DATE']} Up-to-Date</span>
   `;
 
+    // Calculation time
+    if (calcTimeEl) {
+        calcTimeEl.textContent = calcTime != null
+            ? `⏱ Analysis completed in ${calcTime}s`
+            : '';
+    }
+
     body.innerHTML = '';
     results.forEach(r => {
         const tr = document.createElement('tr');
@@ -143,6 +167,7 @@ function displayResults(results, totalPackages) {
       <td><span class="pkg-version">${r.current_version}</span></td>
       <td><span class="pkg-latest">${r.latest_version}</span></td>
       <td><span class="risk-badge ${getRiskClass(r.risk_level)}">${getRiskIcon(r.risk_level)} ${r.risk_level}</span></td>
+      <td>${getGroupBadge(r.conflict_group || 'other')}</td>
       <td style="color:var(--text-secondary);font-size:.84rem;">${r.explanation}</td>
     `;
         body.appendChild(tr);
@@ -222,7 +247,7 @@ document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Analysis failed');
-        displayResults(data.results, data.total_packages);
+        displayResults(data.results, data.total_packages, data.calculation_time);
     } catch (err) {
         showError(errorDiv, errorText, err.message);
     } finally {

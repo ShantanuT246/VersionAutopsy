@@ -5,7 +5,38 @@ Core module for version comparison and risk assessment
 
 import re
 import requests
-from typing import Dict, Tuple, Optional
+from typing import Dict, List, Tuple, Optional
+
+# ── Ecosystem conflict groups ──────────────────────────────────────────────
+# Packages within the same group are tightly coupled; upgrading or downgrading
+# one may silently break the others at runtime.
+_CONFLICT_GROUPS: Dict[str, str] = {
+    # Web / WSGI stack
+    "flask": "web", "werkzeug": "web", "jinja2": "web",
+    "itsdangerous": "web", "click": "web", "markupsafe": "web",
+    "flask-cors": "web", "blinker": "web", "gunicorn": "web",
+    # Data science core
+    "numpy": "data", "pandas": "data", "scipy": "data",
+    "scikit-learn": "data", "xgboost": "data", "xarray": "data",
+    "joblib": "data", "threadpoolctl": "data",
+    # Geo / spatial stack
+    "geopandas": "geo", "shapely": "geo", "pyproj": "geo",
+    "rasterio": "geo", "pyogrio": "geo", "affine": "geo",
+    "cligj": "geo", "click-plugins": "geo",
+    # Visualisation
+    "matplotlib": "viz", "contourpy": "viz", "cycler": "viz",
+    "fonttools": "viz", "kiwisolver": "viz", "pyparsing": "viz",
+    "pillow": "viz",
+    # HTTP / networking
+    "requests": "http", "urllib3": "http", "certifi": "http",
+    "charset-normalizer": "http", "idna": "http",
+    # Date / time utilities
+    "python-dateutil": "datetime", "pytz": "datetime",
+    "tzdata": "datetime", "six": "datetime",
+    # Packaging / build
+    "packaging": "build", "setuptools": "build", "wheel": "build",
+    "pip": "build",
+}
 
 
 def parse_requirements(content: str) -> list:

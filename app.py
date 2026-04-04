@@ -46,7 +46,7 @@ def analyze_dependencies():
         # Analyze each package
         results = []
         for pkg in packages:
-            analysis = analyze_package(pkg['package'], pkg['version'])
+            analysis = analyze_package(pkg['package'], pkg['version'], packages)
             results.append(analysis)
         
         return jsonify({

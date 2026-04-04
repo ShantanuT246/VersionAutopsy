@@ -80,9 +80,9 @@ function animateCounter(el, target) {
 
 // ===== Update Stats Cards =====
 function updateStats(results) {
-    let high = 0, medium = 0, safe = 0;
+let high = 0, medium = 0, safe = 0;
     results.forEach(r => {
-        if (r.risk_level === 'HIGH') high++;
+        if (r.risk_level === 'CRITICAL' || r.risk_level === 'CONFLICT' || r.risk_level === 'HIGH') high++;
         else if (r.risk_level === 'MEDIUM') medium++;
         else safe++;
     });
@@ -100,6 +100,7 @@ function updateStats(results) {
 // ===== Risk helper =====
 function getRiskClass(level) {
     return {
+        CRITICAL: 'risk-critical', CONFLICT: 'risk-conflict',
         HIGH: 'risk-high', MEDIUM: 'risk-medium', LOW: 'risk-low',
         'UP-TO-DATE': 'risk-uptodate', UNKNOWN: 'risk-unknown'
     }[level] || 'risk-unknown';
@@ -107,6 +108,8 @@ function getRiskClass(level) {
 function getRiskIcon(level) {
     const iconStyle = 'width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;';
     return {
+        CRITICAL: '🚨',
+        CONFLICT: '⚔️',
         HIGH: `<img src="/static/high_risk.svg" alt="High" style="${iconStyle}">`,
         MEDIUM: `<img src="/static/medium_risk.svg" alt="Medium" style="${iconStyle}">`,
         LOW: `<img src="/static/low_risk.svg" alt="Low" style="${iconStyle}">`,
@@ -122,13 +125,19 @@ function displayResults(results, totalPackages) {
     const summaryBar = document.getElementById('summaryBar');
     const subtitle = document.getElementById('reportSubtitle');
 
-    const counts = { HIGH: 0, MEDIUM: 0, LOW: 0, 'UP-TO-DATE': 0, UNKNOWN: 0 };
+    const counts = { CRITICAL: 0, CONFLICT: 0, HIGH: 0, MEDIUM: 0, LOW: 0, 'UP-TO-DATE': 0, UNKNOWN: 0 };
     results.forEach(r => { counts[r.risk_level] = (counts[r.risk_level] || 0) + 1; });
 
     subtitle.textContent = `${totalPackages} package${totalPackages !== 1 ? 's' : ''} analyzed`;
 
+    // Only show critical/conflict chips if > 0 to keep UI clean
+    const criticalChip = counts.CRITICAL > 0 ? `<span class="summary-chip chip-critical">🚨 ${counts.CRITICAL} Critical CVEs</span>` : '';
+    const conflictChip = counts.CONFLICT > 0 ? `<span class="summary-chip chip-conflict">⚔️ ${counts.CONFLICT} Conflicts</span>` : '';
+
     summaryBar.innerHTML = `
     <span class="summary-chip chip-total">📦 ${totalPackages} Total</span>
+    ${criticalChip}
+    ${conflictChip}
     <span class="summary-chip chip-danger"><img src="/static/high_risk.svg" alt="High" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.HIGH} High</span>
     <span class="summary-chip chip-warning"><img src="/static/medium_risk.svg" alt="Medium" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.MEDIUM} Medium</span>
     <span class="summary-chip chip-success"><img src="/static/low_risk.svg" alt="Low" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.LOW} Low</span>
@@ -137,12 +146,17 @@ function displayResults(results, totalPackages) {
 
     body.innerHTML = '';
     results.forEach(r => {
+        const conflicts_text = r.conflicted_with && r.conflicted_with.length > 0 
+            ? r.conflicted_with.map(c => `<span class="summary-chip chip-conflict" style="font-size:0.7rem;padding:2px 6px;">${c}</span>`).join(' ') 
+            : '-';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
       <td><span class="pkg-name">${r.package}</span></td>
       <td><span class="pkg-version">${r.current_version}</span></td>
       <td><span class="pkg-latest">${r.latest_version}</span></td>
       <td><span class="risk-badge ${getRiskClass(r.risk_level)}">${getRiskIcon(r.risk_level)} ${r.risk_level}</span></td>
+      <td style="text-align:center;">${conflicts_text}</td>
       <td style="color:var(--text-secondary);font-size:.84rem;">${r.explanation}</td>
     `;
         body.appendChild(tr);

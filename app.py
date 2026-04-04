@@ -54,7 +54,7 @@ def analyze_dependencies():
             if analysis['risk_level'] not in ('UP-TO-DATE', 'UNKNOWN') and analysis['latest_version'] != 'Not Found':
                 fix_command_packages.append(f"{analysis['package']}=={analysis['latest_version']}")
                 
-        fix_command = f"pip install {' '.join(fix_command_packages)}" if fix_command_packages else ""
+        fix_command = f"pip install {' '.join(fix_command_packages)} && pip freeze > requirements.txt" if fix_command_packages else ""
         
         return jsonify({
             'success': True,

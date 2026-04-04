@@ -50,8 +50,8 @@ def analyze_dependencies():
             analysis = analyze_package(pkg['package'], pkg['version'], packages)
             results.append(analysis)
             
-            # If package can be upgraded (not UP-TO-DATE, UNKNOWN, or Not Found)
-            if analysis['risk_level'] not in ('UP-TO-DATE', 'UNKNOWN') and analysis['latest_version'] != 'Not Found':
+            # Include in auto-fix if it needs upgrading AND does not explicitly conflict with other pinned packages
+            if analysis['risk_level'] not in ('UP-TO-DATE', 'UNKNOWN', 'CONFLICT') and analysis['latest_version'] != 'Not Found':
                 fix_command_packages.append(f"{analysis['package']}=={analysis['latest_version']}")
                 
         fix_command = f"pip install {' '.join(fix_command_packages)} && pip freeze > requirements.txt" if fix_command_packages else ""

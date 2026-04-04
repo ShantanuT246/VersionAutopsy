@@ -150,6 +150,14 @@
 
                 <div class="summary-bar" id="summaryBar"></div>
 
+                <div class="fix-command-container" id="fixCommandContainer" style="display: none; padding: 16px 28px; background: rgba(16, 185, 129, 0.05); border-bottom: 1px solid var(--border);">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">✨ Auto-Fix Command (Upgrades outdated packages to latest versions)</div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="fixCommandInput" class="form-control" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; background: var(--surface); color: var(--success); font-weight: bold; padding: 8px 14px;" readonly>
+                        <button class="btn btn-outline" style="padding: 0 18px; border-color: var(--success); color: var(--success);" onclick="copyFixCommand(event)">Copy</button>
+                    </div>
+                </div>
+
                 <div class="table-wrap">
                     <table class="results-table">
                         <thead>

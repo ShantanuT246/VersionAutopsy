@@ -119,7 +119,7 @@ function getRiskIcon(level) {
 }
 
 // ===== Display results table =====
-function displayResults(results, totalPackages) {
+function displayResults(results, totalPackages, fixCommand = "") {
     const section = document.getElementById('resultsSection');
     const body = document.getElementById('resultsBody');
     const summaryBar = document.getElementById('summaryBar');
@@ -163,10 +163,35 @@ function displayResults(results, totalPackages) {
     });
 
     section.classList.add('visible');
+    
+    // Handle Auto-Fix Command Container
+    const fixContainer = document.getElementById('fixCommandContainer');
+    if (fixContainer) {
+        if (fixCommand) {
+            document.getElementById('fixCommandInput').value = fixCommand;
+            fixContainer.style.display = 'block';
+        } else {
+            fixContainer.style.display = 'none';
+        }
+    }
+    
     updateStats(results);
 
     setTimeout(() => scrollToSection('resultsSection'), 100);
 }
+
+// ===== Copy Auto-Fix Command =====
+window.copyFixCommand = function(event) {
+    event.preventDefault();
+    const input = document.getElementById('fixCommandInput');
+    input.select();
+    document.execCommand('copy');
+    
+    const btn = event.target;
+    const oldText = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = oldText; }, 2000);
+};
 
 // ===== Display single result =====
 function displaySingleResult(r) {
@@ -236,7 +261,7 @@ document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Analysis failed');
-        displayResults(data.results, data.total_packages);
+        displayResults(data.results, data.total_packages, data.fix_command);
     } catch (err) {
         showError(errorDiv, errorText, err.message);
     } finally {

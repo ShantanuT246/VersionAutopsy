@@ -251,6 +251,52 @@
                 </div>
             </div>
 
+            <!-- ===== DIFF / COMPARISON VIEW ===== -->
+            <div class="panel diff-panel" id="diffSection" style="display:none;">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">
+                            <div class="panel-icon" style="background:linear-gradient(135deg,#10b981,#059669);">🔀</div>
+                            Safe Upgrade Comparison
+                        </div>
+                        <div class="panel-desc" id="diffSubtitle">Original vs recommended safe versions</div>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <span class="diff-legend">
+                            <span class="diff-legend-dot changed"></span> Changed
+                            <span class="diff-legend-dot unchanged" style="margin-left:10px;"></span> Unchanged
+                        </span>
+                        <button class="btn btn-outline" id="copyFixedBtn" onclick="copyFixedFile(event)"
+                            style="font-size:.8rem;padding:7px 16px;border-color:var(--success);color:var(--success);">
+                            📋 Copy Fixed File
+                        </button>
+                    </div>
+                </div>
+
+                <div class="diff-pane-wrap">
+                    <!-- Left pane: original -->
+                    <div class="diff-pane diff-pane-left">
+                        <div class="diff-pane-header">
+                            <span class="diff-pane-label diff-pane-label-original">◀ Original</span>
+                            <span class="diff-pane-hint" id="diffOriginalHint"></span>
+                        </div>
+                        <pre class="diff-code" id="diffOriginalCode"></pre>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="diff-divider" aria-hidden="true"></div>
+
+                    <!-- Right pane: fixed -->
+                    <div class="diff-pane diff-pane-right">
+                        <div class="diff-pane-header">
+                            <span class="diff-pane-label diff-pane-label-fixed">▶ Recommended</span>
+                            <span class="diff-pane-hint" id="diffFixedHint"></span>
+                        </div>
+                        <pre class="diff-code" id="diffFixedCode"></pre>
+                    </div>
+                </div>
+            </div>
+
             <!-- ===== FORM 2: Single Package ===== -->
             <div class="panel" id="checkSection">
                 <div class="panel-header">

@@ -970,6 +970,202 @@ textarea.form-control {
     grid-column: 1 / -1;
 }
 
+/* ===== SPLIT-PANE DIFF / COMPARISON VIEW ===== */
+.diff-panel {
+    animation: fadeInUp 0.4s cubic-bezier(.4, 0, .2, 1) both;
+    overflow: visible;
+}
+
+/* Two-column pane wrapper */
+.diff-pane-wrap {
+    display: flex;
+    min-height: 180px;
+    position: relative;
+}
+
+/* Individual pane */
+.diff-pane {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Pane label row */
+.diff-pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-3);
+}
+
+.diff-pane-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.diff-pane-label-original {
+    color: var(--text-secondary);
+}
+
+.diff-pane-label-fixed {
+    color: var(--success);
+}
+
+.diff-pane-hint {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Central divider */
+.diff-divider {
+    width: 3px;
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        var(--border) 8%,
+        #10b981 50%,
+        var(--border) 92%,
+        transparent 100%);
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+/* Code block */
+.diff-code {
+    flex: 1;
+    margin: 0;
+    padding: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    background: var(--surface);
+    overflow-x: auto;
+    white-space: pre;
+    counter-reset: diff-line;
+}
+
+/* Each rendered line is a <div class="diff-line"> */
+.diff-line {
+    display: flex;
+    align-items: center;
+    padding: 0 20px 0 8px;
+    min-height: 1.7em;
+    position: relative;
+    counter-increment: diff-line;
+}
+
+.diff-line::before {
+    content: counter(diff-line);
+    min-width: 28px;
+    text-align: right;
+    margin-right: 16px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* Comment / empty lines */
+.diff-line.diff-comment {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Unchanged package line (right pane) */
+.diff-line.diff-unchanged {
+    color: var(--text-primary);
+}
+
+/* Changed line on the RIGHT pane — green highlight */
+.diff-line.diff-changed {
+    background: rgba(16, 185, 129, 0.09);
+    border-left: 3px solid #10b981;
+    padding-left: 5px;
+}
+
+[data-theme="dark"] .diff-line.diff-changed {
+    background: rgba(16, 185, 129, 0.12);
+}
+
+/* The version token that actually changed — bolder highlight */
+.diff-version-changed {
+    color: #10b981;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.14);
+    border-radius: 3px;
+    padding: 0 3px;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+/* Lines on the LEFT pane that will change — subtle dim */
+.diff-line.diff-will-change {
+    color: var(--text-secondary);
+}
+
+.diff-version-old {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Legend in panel header */
+.diff-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.diff-legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.diff-legend-dot.changed {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, .5);
+}
+
+.diff-legend-dot.unchanged {
+    background: var(--surface-3);
+    border: 1.5px solid var(--border);
+}
+
+/* Responsive: stack panes vertically on small screens */
+@media (max-width: 700px) {
+    .diff-pane-wrap {
+        flex-direction: column;
+    }
+
+    .diff-divider {
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right,
+            transparent 0%,
+            var(--border) 8%,
+            #10b981 50%,
+            var(--border) 92%,
+            transparent 100%);
+    }
+
+    .diff-legend {
+        display: none;
+    }
+}
+
 /* ===== SOURCE (CACHED / LIVE) BADGES ===== */
 .source-badge {
     display: inline-flex;

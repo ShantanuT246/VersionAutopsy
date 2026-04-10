@@ -197,6 +197,10 @@ function displayResults(results, totalPackages, fixCommand = "") {
     // Render doughnut chart
     if (window.renderRiskChart) window.renderRiskChart(counts, totalPackages);
 
+    // Build split-pane diff view
+    const originalText = document.getElementById('requirements').value || '';
+    if (originalText.trim()) buildDiffView(originalText, results);
+
     setTimeout(() => scrollToSection('resultsSection'), 100);
 }
 
@@ -488,6 +492,192 @@ function displaySingleResult(r) {
     setTimeout(() => scrollToSection('singleResult'), 100);
 }
 
+// ===== Split-Pane Diff Viewer =====
+(function () {
+
+    // Risk levels where we recommend upgrading to latest
+    const UPGRADEABLE = new Set(['HIGH', 'MEDIUM', 'LOW']);
+
+    /**
+     * Build a lookup: package name → { currentVersion, recommendedVersion, changed }
+     * CRITICAL → keep current (don't blindly upgrade a CVE package)
+     * CONFLICT → keep current (upgrading breaks deps)
+     * UP-TO-DATE / UNKNOWN → no change
+     * HIGH / MEDIUM / LOW → upgrade to latest_version
+     */
+    function buildRecommendations(results) {
+        const map = {};
+        results.forEach(r => {
+            const recommend = UPGRADEABLE.has(r.risk_level) && r.latest_version !== 'Not Found';
+            map[r.package.toLowerCase()] = {
+                current:     r.current_version,
+                recommended: recommend ? r.latest_version : r.current_version,
+                changed:     recommend && r.latest_version !== r.current_version,
+                risk:        r.risk_level,
+            };
+        });
+        return map;
+    }
+
+    // Parse a requirements line → { pkg, op, ver, rest } or null
+    function parseLine(line) {
+        const m = line.match(/^([a-zA-Z0-9\-_]+)\s*([=<>!~]+)\s*([0-9][^\s]*)(.*)$/);
+        if (!m) return null;
+        return { pkg: m[1].toLowerCase(), op: m[2], ver: m[3], rest: m[4] || '' };
+    }
+
+    // Escape HTML entities
+    function esc(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    /**
+     * Render one pane.
+     * @param {string[]} lines    - original file lines
+     * @param {object}   recs     - recommendation map
+     * @param {'left'|'right'} side
+     * @returns {{ html: string, changedCount: number, fixedText: string }}
+     */
+    function renderPane(lines, recs, side) {
+        let html = '';
+        let changedCount = 0;
+        const fixedLines = [];
+
+        lines.forEach(raw => {
+            const trimmed = raw.trim();
+
+            // Empty line
+            if (!trimmed) {
+                html += `<div class="diff-line"><span></span></div>`;
+                fixedLines.push('');
+                return;
+            }
+
+            // Comment line
+            if (trimmed.startsWith('#')) {
+                html += `<div class="diff-line diff-comment"><span>${esc(raw)}</span></div>`;
+                fixedLines.push(raw);
+                return;
+            }
+
+            const parsed = parseLine(trimmed);
+            if (!parsed) {
+                // Unparseable line — pass through unchanged
+                html += `<div class="diff-line diff-unchanged"><span>${esc(raw)}</span></div>`;
+                fixedLines.push(raw);
+                return;
+            }
+
+            const rec = recs[parsed.pkg];
+            const isChanged = rec && rec.changed;
+
+            if (side === 'left') {
+                // Left pane: show original, dim lines that will change
+                if (isChanged) {
+                    const lineHtml = `${esc(raw.replace(parsed.ver, ''))}<span class="diff-version-old">${esc(parsed.ver)}</span>${esc(parsed.rest)}`;
+                    html += `<div class="diff-line diff-will-change"><span>${esc(parsed.pkg)}${esc(parsed.op)}<span class="diff-version-old">${esc(parsed.ver)}</span>${esc(parsed.rest)}</span></div>`;
+                } else {
+                    html += `<div class="diff-line diff-unchanged"><span>${esc(raw)}</span></div>`;
+                }
+                fixedLines.push(raw); // left pane always shows original
+            } else {
+                // Right pane: show recommended version
+                if (isChanged) {
+                    changedCount++;
+                    const newVer = rec.recommended;
+                    const newLine = `${parsed.pkg}${parsed.op}${newVer}${parsed.rest}`;
+                    html += `<div class="diff-line diff-changed"><span>${esc(parsed.pkg)}${esc(parsed.op)}<span class="diff-version-changed">${esc(newVer)}</span>${esc(parsed.rest)}</span></div>`;
+                    fixedLines.push(newLine);
+                } else {
+                    html += `<div class="diff-line diff-unchanged"><span>${esc(raw)}</span></div>`;
+                    fixedLines.push(raw);
+                }
+            }
+        });
+
+        return { html, changedCount, fixedText: fixedLines.join('\n') };
+    }
+
+    // Store fixed text for the copy button
+    let _fixedText = '';
+
+    /**
+     * Public entry point — called from displayResults.
+     */
+    window.buildDiffView = function (originalText, results) {
+        const section   = document.getElementById('diffSection');
+        const leftEl    = document.getElementById('diffOriginalCode');
+        const rightEl   = document.getElementById('diffFixedCode');
+        const subtitleEl = document.getElementById('diffSubtitle');
+        const origHint  = document.getElementById('diffOriginalHint');
+        const fixHint   = document.getElementById('diffFixedHint');
+
+        if (!section) return;
+
+        const lines = originalText.split('\n');
+        const recs  = buildRecommendations(results);
+
+        const left  = renderPane(lines, recs, 'left');
+        const right = renderPane(lines, recs, 'right');
+
+        _fixedText = right.fixedText;
+
+        leftEl.innerHTML  = left.html;
+        rightEl.innerHTML = right.html;
+
+        const n = right.changedCount;
+        subtitleEl.textContent = n > 0
+            ? `${n} version${n !== 1 ? 's' : ''} can be safely upgraded — highlighted in green`
+            : 'All packages are already at their recommended versions ✨';
+
+        origHint.textContent  = `${lines.length} line${lines.length !== 1 ? 's' : ''}`;
+        fixHint.textContent   = n > 0 ? `${n} change${n !== 1 ? 's' : ''}` : 'no changes';
+
+        section.style.display = 'block';
+    };
+
+    /**
+     * Clear / hide the diff panel.
+     */
+    window.clearDiffView = function () {
+        _fixedText = '';
+        const section = document.getElementById('diffSection');
+        if (section) section.style.display = 'none';
+        const leftEl  = document.getElementById('diffOriginalCode');
+        const rightEl = document.getElementById('diffFixedCode');
+        if (leftEl)  leftEl.innerHTML  = '';
+        if (rightEl) rightEl.innerHTML = '';
+    };
+
+    /**
+     * Copy the fixed requirements.txt content to clipboard.
+     */
+    window.copyFixedFile = function (event) {
+        event.preventDefault();
+        if (!_fixedText) return;
+
+        navigator.clipboard.writeText(_fixedText).then(() => {
+            const btn = document.getElementById('copyFixedBtn');
+            if (!btn) return;
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✅ Copied!';
+            btn.style.borderColor = 'var(--success)';
+            setTimeout(() => { btn.innerHTML = orig; }, 2200);
+        }).catch(() => {
+            // Fallback for older browsers
+            const ta = document.createElement('textarea');
+            ta.value = _fixedText;
+            ta.style.position = 'fixed';
+            ta.style.opacity  = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+        });
+    };
+
+})();
+
 // ===== Clear results =====
 function clearResults() {
     const section = document.getElementById('resultsSection');
@@ -498,6 +688,7 @@ function clearResults() {
     });
     document.getElementById('navBadge').style.display = 'none';
     if (window.clearRiskChart) window.clearRiskChart();
+    if (window.clearDiffView)  window.clearDiffView();
 }
 
 // ===== FORM 1: Analyze Dependencies =====

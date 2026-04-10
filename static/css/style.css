@@ -970,6 +970,87 @@ textarea.form-control {
     grid-column: 1 / -1;
 }
 
+/* ===== GITHUB IMPORT PANEL ===== */
+.github-advanced {
+    margin-top: 12px;
+}
+
+.github-advanced-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color var(--transition);
+}
+
+.github-advanced-toggle:hover {
+    color: var(--primary);
+}
+
+.github-advanced-toggle #githubAdvancedIcon {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.github-advanced-toggle.open #githubAdvancedIcon {
+    transform: rotate(90deg);
+}
+
+/* Metadata strip shown after a successful fetch */
+.github-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(36, 41, 46, .06), rgba(87, 96, 106, .06));
+    border: 1px solid rgba(36, 41, 46, .15);
+    border-radius: var(--radius-sm);
+    animation: fadeInUp 0.3s ease both;
+}
+
+[data-theme="dark"] .github-meta {
+    background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    border-color: rgba(255,255,255,.08);
+}
+
+.github-meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    background: var(--surface-3);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+}
+
+.github-meta-link {
+    color: var(--primary);
+    text-decoration: none;
+    cursor: pointer;
+    background: rgba(99, 102, 241, .08);
+    border-color: rgba(99, 102, 241, .2);
+    transition: all var(--transition);
+}
+
+.github-meta-link:hover {
+    background: rgba(99, 102, 241, .15);
+    color: var(--primary-light);
+}
+
 /* ===== RISK DOUGHNUT CHART ===== */
 .chart-section {
     padding: 28px 36px;

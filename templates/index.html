@@ -25,6 +25,9 @@
 
         <nav class="sidebar-nav">
             <div class="nav-label">Tools</div>
+            <button class="nav-link" onclick="scrollToSection('githubSection')">
+                <span class="nav-icon">🐙</span> Import from GitHub
+            </button>
             <button class="nav-link active" onclick="scrollToSection('analyzeSection')">
                 <span class="nav-icon">📋</span> Analyze Dependencies
             </button>
@@ -102,6 +105,62 @@
                         <div class="stat-value" id="statSafe">0</div>
                         <div class="stat-label">Safe / Up-to-Date</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- ===== GITHUB IMPORT PANEL ===== -->
+            <div class="panel" id="githubSection">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">
+                            <div class="panel-icon" style="background:linear-gradient(135deg,#24292e,#57606a);">🐙</div>
+                            Import from GitHub
+                        </div>
+                        <div class="panel-desc">Paste a public GitHub repo URL — we'll fetch and analyze the requirements.txt automatically</div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <form id="githubForm">
+                        <div class="form-group">
+                            <label class="form-label" for="githubUrl">GitHub Repository URL</label>
+                            <input class="form-control" type="url" id="githubUrl" name="githubUrl"
+                                placeholder="https://github.com/owner/repo" autocomplete="off" required>
+                            <div class="form-hint">💡 Works with public repos — e.g. <code>https://github.com/pallets/flask</code></div>
+                        </div>
+
+                        <div class="github-advanced" id="githubAdvanced">
+                            <button type="button" class="github-advanced-toggle" id="githubAdvancedToggle"
+                                onclick="toggleGithubAdvanced()">
+                                <span id="githubAdvancedIcon">▸</span> Advanced options
+                            </button>
+                            <div class="github-advanced-body" id="githubAdvancedBody" style="display:none;">
+                                <div class="form-row" style="margin-top:14px;">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label class="form-label" for="githubBranch">Branch <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+                                        <input class="form-control" type="text" id="githubBranch" placeholder="main or master (auto-detected)">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label class="form-label" for="githubFilePath">File Path <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+                                        <input class="form-control" type="text" id="githubFilePath" placeholder="requirements.txt">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="error-message" id="githubError" style="margin-top:14px;">⚠️ <span id="githubErrorText"></span></div>
+
+                        <div class="github-meta" id="githubMeta" style="display:none;">
+                            <div class="github-meta-chip" id="ghMetaRepo"></div>
+                            <div class="github-meta-chip" id="ghMetaBranch"></div>
+                            <div class="github-meta-chip" id="ghMetaFile"></div>
+                            <a class="github-meta-chip github-meta-link" id="ghMetaRawUrl" href="#" target="_blank" rel="noopener">🔗 View raw</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="githubBtn" style="margin-top:18px;">
+                            <span>🐙 Fetch &amp; Analyze</span>
+                            <span class="loader" id="githubLoader"></span>
+                        </button>
+                    </form>
                 </div>
             </div>
 

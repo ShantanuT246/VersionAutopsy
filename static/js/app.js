@@ -565,3 +565,85 @@ document.getElementById('checkPackageForm').addEventListener('submit', async (e)
         btn.disabled = false;
     }
 });
+
+// ===== GitHub Advanced Toggle =====
+window.toggleGithubAdvanced = function () {
+    const body   = document.getElementById('githubAdvancedBody');
+    const toggle = document.getElementById('githubAdvancedToggle');
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    toggle.classList.toggle('open', !isOpen);
+};
+
+// ===== GitHub Import Form =====
+document.getElementById('githubForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const repoUrl   = document.getElementById('githubUrl').value.trim();
+    const branch    = document.getElementById('githubBranch').value.trim();
+    const filePath  = document.getElementById('githubFilePath').value.trim();
+    const errorDiv  = document.getElementById('githubError');
+    const errorText = document.getElementById('githubErrorText');
+    const loader    = document.getElementById('githubLoader');
+    const btn       = document.getElementById('githubBtn');
+    const metaBar   = document.getElementById('githubMeta');
+
+    clearError(errorDiv);
+    metaBar.style.display = 'none';
+
+    if (!repoUrl) {
+        showError(errorDiv, errorText, 'Please enter a GitHub repository URL.');
+        return;
+    }
+
+    loader.classList.add('active');
+    btn.disabled = true;
+
+    try {
+        // ── Step 1: Fetch the file from GitHub ──────────────────────────────
+        const fetchRes = await fetch('/api/fetch-github', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ repo_url: repoUrl, branch, file_path: filePath })
+        });
+        const fetchData = await fetchRes.json();
+
+        if (!fetchRes.ok) throw new Error(fetchData.error || 'Failed to fetch from GitHub.');
+
+        // ── Step 2: Show metadata strip ────────────────────────────────────
+        document.getElementById('ghMetaRepo').textContent   = `📦 ${fetchData.owner}/${fetchData.repo_name}`;
+        document.getElementById('ghMetaBranch').textContent = `🌿 ${fetchData.branch}`;
+        document.getElementById('ghMetaFile').textContent   = `📄 ${fetchData.file_path}`;
+        const rawLink = document.getElementById('ghMetaRawUrl');
+        rawLink.href  = fetchData.raw_url;
+        metaBar.style.display = 'flex';
+
+        // ── Step 3: Auto-populate the textarea ────────────────────────────
+        document.getElementById('requirements').value = fetchData.content;
+
+        // ── Step 4: Immediately run analysis ─────────────────────────────
+        const analyzeRes = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ requirements: fetchData.content })
+        });
+        const analyzeData = await analyzeRes.json();
+        if (!analyzeRes.ok) throw new Error(analyzeData.error || 'Analysis failed.');
+
+        displayResults(analyzeData.results, analyzeData.total_packages, analyzeData.fix_command);
+
+        // Update report subtitle to mention GitHub source
+        const subtitle = document.getElementById('reportSubtitle');
+        if (subtitle) {
+            subtitle.textContent =
+                `${analyzeData.total_packages} package${analyzeData.total_packages !== 1 ? 's' : ''} · from ${fetchData.owner}/${fetchData.repo_name} (${fetchData.branch})`;
+        }
+
+    } catch (err) {
+        showError(errorDiv, errorText, err.message);
+    } finally {
+        loader.classList.remove('active');
+        btn.disabled = false;
+    }
+});
+

@@ -150,6 +150,22 @@
 
                 <div class="summary-bar" id="summaryBar"></div>
 
+                <!-- ===== RISK SUMMARY DOUGHNUT CHART ===== -->
+                <div class="chart-section" id="chartSection" style="display:none;">
+                    <div class="chart-inner">
+                        <div class="chart-canvas-wrap">
+                            <canvas id="riskDonutChart" width="220" height="220" aria-label="Risk distribution doughnut chart"></canvas>
+                            <div class="chart-center-label" id="chartCenterLabel">
+                                <div class="chart-center-count" id="chartCenterCount">0</div>
+                                <div class="chart-center-text">Packages</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend" id="chartLegend"></div>
+                    </div>
+                    <!-- Hover Tooltip -->
+                    <div class="chart-tooltip" id="chartTooltip"></div>
+                </div>
+
                 <div class="fix-command-container" id="fixCommandContainer" style="display: none; padding: 16px 28px; background: rgba(16, 185, 129, 0.05); border-bottom: 1px solid var(--border);">
                     <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">✨ Auto-Fix Command (Upgrades outdated packages to latest versions)</div>
                     <div style="display: flex; gap: 10px;">

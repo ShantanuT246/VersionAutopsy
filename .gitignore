@@ -44,3 +44,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# PyPI response cache (1-hour TTL, auto-generated at runtime)
+cache/

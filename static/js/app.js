@@ -118,6 +118,14 @@ function getRiskIcon(level) {
     }[level] || '⬜';
 }
 
+// ===== Source badge helper =====
+function getSourceBadge(source) {
+    if (source === 'CACHED') {
+        return '<span class="source-badge source-cached" title="Served from local 1-hour cache">🗃 Cached</span>';
+    }
+    return '<span class="source-badge source-live" title="Fetched live from PyPI">🌐 Live</span>';
+}
+
 // ===== Display results table =====
 function displayResults(results, totalPackages, fixCommand = "") {
     const section = document.getElementById('resultsSection');
@@ -130,9 +138,16 @@ function displayResults(results, totalPackages, fixCommand = "") {
 
     subtitle.textContent = `${totalPackages} package${totalPackages !== 1 ? 's' : ''} analyzed`;
 
+    // Count cache hits for the summary chip
+    const cachedCount = results.filter(r => r.source === 'CACHED').length;
+    const liveCount   = totalPackages - cachedCount;
+
     // Only show critical/conflict chips if > 0 to keep UI clean
     const criticalChip = counts.CRITICAL > 0 ? `<span class="summary-chip chip-critical">🚨 ${counts.CRITICAL} Critical CVEs</span>` : '';
     const conflictChip = counts.CONFLICT > 0 ? `<span class="summary-chip chip-conflict">⚔️ ${counts.CONFLICT} Conflicts</span>` : '';
+    const cacheChip    = cachedCount > 0
+        ? `<span class="summary-chip chip-cached" title="${cachedCount} result${cachedCount !== 1 ? 's' : ''} served from local cache">🗃 ${cachedCount} Cached · 🌐 ${liveCount} Live</span>`
+        : '';
 
     summaryBar.innerHTML = `
     <span class="summary-chip chip-total">📦 ${totalPackages} Total</span>
@@ -142,6 +157,7 @@ function displayResults(results, totalPackages, fixCommand = "") {
     <span class="summary-chip chip-warning"><img src="/static/medium_risk.svg" alt="Medium" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.MEDIUM} Medium</span>
     <span class="summary-chip chip-success"><img src="/static/low_risk.svg" alt="Low" style="width:1.2em;height:1.2em;vertical-align:text-bottom;margin-right:2px;"> ${counts.LOW} Low</span>
     <span class="summary-chip chip-info">✨ ${counts['UP-TO-DATE']} Up-to-Date</span>
+    ${cacheChip}
   `;
 
     body.innerHTML = '';
@@ -156,6 +172,7 @@ function displayResults(results, totalPackages, fixCommand = "") {
       <td><span class="pkg-version">${r.current_version}</span></td>
       <td><span class="pkg-latest">${r.latest_version}</span></td>
       <td><span class="risk-badge ${getRiskClass(r.risk_level)}">${getRiskIcon(r.risk_level)} ${r.risk_level}</span></td>
+      <td style="text-align:center;">${getSourceBadge(r.source)}</td>
       <td style="text-align:center;">${conflicts_text}</td>
       <td style="color:var(--text-secondary);font-size:.84rem;">${r.explanation}</td>
     `;

@@ -6,6 +6,7 @@ Core module for version comparison and risk assessment
 import re
 import requests
 from typing import Dict, Tuple, Optional, List
+import pypi_cache as _cache
 
 
 def parse_requirements(content: str) -> list:
@@ -58,31 +59,43 @@ def parse_version(version_string: str) -> Tuple[int, int, int]:
     return (major, minor, patch)
 
 
-def fetch_package_data(package_name: str, version: Optional[str] = None) -> Optional[Dict]:
+def fetch_package_data(package_name: str, version: Optional[str] = None):
     """
-    Fetch package data from PyPI.
-    
+    Fetch package data from PyPI, consulting the file-based TTL cache first.
+
     Args:
         package_name: Name of the PyPI package
         version: Optional specific version to fetch
-        
+
     Returns:
-        JSON package data dictionary or None if not found
+        Tuple of (data_dict_or_None, cache_hit_bool)
+        data_dict_or_None — PyPI JSON payload, or None if not found / error
+        cache_hit_bool    — True if the result came from cache, False if live
     """
+    cache_key = package_name if not version else f"{package_name}/{version}"
+
+    # ── 1. Cache lookup ───────────────────────────────────────────────────────
+    cached = _cache.get(cache_key)
+    if cached is not None:
+        return cached, True
+
+    # ── 2. Live network request ───────────────────────────────────────────────
     try:
         url = f"https://pypi.org/pypi/{package_name}/json"
         if version:
             url = f"https://pypi.org/pypi/{package_name}/{version}/json"
-            
+
         response = requests.get(url, timeout=5)
-        
+
         if response.status_code == 200:
-            return response.json()
+            data = response.json()
+            _cache.set(cache_key, data)
+            return data, False
         else:
-            return None
+            return None, False
     except Exception as e:
         print(f"Error fetching data for {package_name}: {e}")
-        return None
+        return None, False
 
 
 def calculate_risk(current_version: str, latest_version: str, has_cve: bool, has_conflict: bool) -> str:
@@ -168,18 +181,21 @@ def generate_explanation(risk_level: str, current: str, latest: str, vulnerabili
 def analyze_package(package_name: str, current_version: str, all_packages: Optional[List[Dict]] = None) -> Dict:
     """
     Analyze a single package and return risk assessment.
-    
+
     Args:
         package_name: Name of the package
         current_version: Current installed version
         all_packages: Optional list of all packages in requirements.txt (for conflict checking)
-        
+
     Returns:
-        Dictionary with analysis results
+        Dictionary with analysis results incl. a 'source' key ("CACHED" or "LIVE").
     """
-    latest_data = fetch_package_data(package_name)
-    current_data = fetch_package_data(package_name, current_version)
-    
+    latest_data, hit_latest   = fetch_package_data(package_name)
+    current_data, hit_current = fetch_package_data(package_name, current_version)
+
+    # Both calls cached → show CACHED; any live fetch → show LIVE
+    source = "CACHED" if (hit_latest and hit_current) else "LIVE"
+
     if latest_data is None:
         return {
             'package': package_name,
@@ -187,45 +203,46 @@ def analyze_package(package_name: str, current_version: str, all_packages: Optio
             'latest_version': 'Not Found',
             'risk_level': 'UNKNOWN',
             'explanation': f'Package "{package_name}" not found on PyPI. Please verify the package name.',
-            'conflicted_with': []
+            'conflicted_with': [],
+            'source': source,
         }
-    
+
     latest_version = latest_data['info']['version']
-    
+
     # 1. Vulnerability Checking
     vulnerabilities = []
     if current_data and current_data.get('vulnerabilities'):
         vulnerabilities = current_data['vulnerabilities']
-        
-    # 2. Inter-Dependency Conflict Checking (Simple approach)
+
+    # 2. Inter-Dependency Conflict Checking
     conflicts = []
     conflicted_with = []
     if all_packages and latest_data['info'].get('requires_dist'):
         latest_requires = latest_data['info']['requires_dist']
         for req in latest_requires:
-            if ';' in req: continue # Skip environment specific markers for simplicity
-            
+            if ';' in req: continue  # Skip environment-specific markers
+
             req_match = re.match(r'^([a-zA-Z0-9\-_]+)', req)
             if req_match:
                 req_basename = req_match.group(1).lower()
                 for p in all_packages:
                     if p['package'] == req_basename and p['package'] != package_name:
-                        # Found a requirement that matches another pinned package
                         conflicts.append(f"Clashes with {p['package']} == {p['version']}")
                         if p['package'] not in conflicted_with:
                             conflicted_with.append(p['package'])
-    
-    has_cve = len(vulnerabilities) > 0
+
+    has_cve      = len(vulnerabilities) > 0
     has_conflict = len(conflicts) > 0
-    
-    risk_level = calculate_risk(current_version, latest_version, has_cve, has_conflict)
+
+    risk_level  = calculate_risk(current_version, latest_version, has_cve, has_conflict)
     explanation = generate_explanation(risk_level, current_version, latest_version, vulnerabilities, conflicts)
-    
+
     return {
         'package': package_name,
         'current_version': current_version,
         'latest_version': latest_version,
         'risk_level': risk_level,
         'explanation': explanation,
-        'conflicted_with': conflicted_with
+        'conflicted_with': conflicted_with,
+        'source': source,
     }

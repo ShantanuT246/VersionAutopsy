@@ -970,6 +970,39 @@ textarea.form-control {
     grid-column: 1 / -1;
 }
 
+/* ===== SOURCE (CACHED / LIVE) BADGES ===== */
+.source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.source-cached {
+    background: rgba(99, 102, 241, .1);
+    color: var(--primary);
+    border: 1px solid rgba(99, 102, 241, .22);
+}
+
+.source-live {
+    background: rgba(16, 185, 129, .08);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, .22);
+}
+
+/* Summary bar chip for cache stats */
+.chip-cached {
+    background: rgba(99, 102, 241, .08);
+    color: var(--primary);
+    border: 1px solid rgba(99, 102, 241, .18);
+}
+
 /* ===== GITHUB IMPORT PANEL ===== */
 .github-advanced {
     margin-top: 12px;
